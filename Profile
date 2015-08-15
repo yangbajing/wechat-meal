@@ -1,0 +1,1 @@
+web: target/universal/stage/bin/wechat-meal -Dconfig.file=/Users/jingyang/studies/wechat-meal.application.conf -Dhttp.port=$PORT
