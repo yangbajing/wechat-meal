@@ -1,0 +1,3 @@
+GET         /                  @controllers.PageController.index()
+GET         /api/weixin        @controllers.api.WeixinCtrl.get(signature: String, echostr: String, timestamp: String, nonce: String)
+POST        /api/weixin        @controllers.api.WeixinCtrl.post()

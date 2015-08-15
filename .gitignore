@@ -1,0 +1,44 @@
+*~
+*.class
+*.log
+
+# Ignore all dotfiles...
+.*
+# except for .gitignore
+!.gitignore
+
+# Ignore Play! working directory #
+db
+eclipse
+lib
+log
+logs
+modules
+precompiled
+project/project
+project/target
+target
+tmp
+test-result
+server.pid
+*.iml
+*.eml
+
+# sbt specific
+dist/*
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# Sphinx rst
+*.pyc
+docs/_build/
+docs/_sphinx/exts/__pycache__/
+
+# node
+public/**
+build/
+static/build/
+static/node_modules/
+
