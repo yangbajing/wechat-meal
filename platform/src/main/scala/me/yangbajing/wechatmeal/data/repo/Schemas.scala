@@ -15,8 +15,9 @@ import me.yangbajing.wechatmeal.data.model.WeixinAccount
 class Schemas {
   val db = {
     val (dbUrl, username, password) =
-      Option(new URI(System.getenv("DATABASE_URL"))) match {
-        case Some(dbUri) =>
+      Option(System.getenv("DATABASE_URL")) match {
+        case Some(databaseUrl) =>
+          val dbUri = new URI(databaseUrl)
           val username = dbUri.getUserInfo.split(":")(0)
           val password = dbUri.getUserInfo.split(":")(0)
           val dbUrl = "jdbc:postgresql://" + dbUri.getHost + ':' + dbUri.getPort + dbUri.getPath
@@ -26,8 +27,9 @@ class Schemas {
           (c.getString("dbUrl"), c.getString("username"), c.getString("password"))
       }
 
+    println(s"dburl: $dbUrl\nusername: $username\npassword: $password")
     Database.forURL(dbUrl, username, password, driver = "org.postgresql.Driver",
-      executor = AsyncExecutor("WechatMeal", numThreads = 10, queueSize = 1000))
+      executor = AsyncExecutor("WechatMeal", numThreads = 2, queueSize = 1000))
   }
 
   class TableWeixinAccount(tag: Tag) extends Table[WeixinAccount](tag, "t_weixin_account") {
