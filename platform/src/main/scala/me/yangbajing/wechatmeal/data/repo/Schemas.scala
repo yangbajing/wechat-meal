@@ -15,15 +15,15 @@ import me.yangbajing.wechatmeal.data.model.WeixinAccount
 class Schemas {
   val db = {
     val (dbUrl, username, password) =
-      if (ConfigFactory.load().hasPath("wechat-meal.db")) {
-        val c = ConfigFactory.load().getConfig("wechat-meal.db")
-        (c.getString("dbUrl"), c.getString("username"), c.getString("password"))
-      } else {
-        val dbUri = new URI(System.getenv("DATABASE_URL"))
-        val username = dbUri.getUserInfo.split(":")(0)
-        val password = dbUri.getUserInfo.split(":")(0)
-        val dbUrl = "jdbc:postgresql://" + dbUri.getHost + ':' + dbUri.getPort + dbUri.getPath
-        (dbUrl, username, password)
+      Option(new URI(System.getenv("DATABASE_URL"))) match {
+        case Some(dbUri) =>
+          val username = dbUri.getUserInfo.split(":")(0)
+          val password = dbUri.getUserInfo.split(":")(0)
+          val dbUrl = "jdbc:postgresql://" + dbUri.getHost + ':' + dbUri.getPort + dbUri.getPath
+          (dbUrl, username, password)
+        case None =>
+          val c = ConfigFactory.load().getConfig("wechat-meal.db")
+          (c.getString("dbUrl"), c.getString("username"), c.getString("password"))
       }
 
     Database.forURL(dbUrl, username, password, driver = "org.postgresql.Driver",
