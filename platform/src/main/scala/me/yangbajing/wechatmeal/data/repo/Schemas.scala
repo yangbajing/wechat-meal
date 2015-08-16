@@ -19,7 +19,7 @@ class Schemas {
         case Some(databaseUrl) =>
           val dbUri = new URI(databaseUrl)
           val username = dbUri.getUserInfo.split(":")(0)
-          val password = dbUri.getUserInfo.split(":")(0)
+          val password = dbUri.getUserInfo.split(":")(1)
           val dbUrl = "jdbc:postgresql://" + dbUri.getHost + ':' + dbUri.getPort + dbUri.getPath
           (dbUrl, username, password)
         case None =>
