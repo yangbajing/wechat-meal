@@ -11,30 +11,32 @@ import me.yangbajing.weixin.mp.WeixinUnmarshallers._
 import me.yangbajing.weixin.mp.domain._
 import me.yangbajing.weixin.mp.message.MessageType
 import me.yangbajing.weixin.mp.response.ErrMsg
-import me.yangbajing.weixin.mp.setting.WeixinSetting
+import me.yangbajing.weixin.mp.setting.{SettingAccount, WeixinSetting}
 import play.api.libs.json.JsValue
 
 import scala.concurrent.Future
 
 object HttpApi {
-  def apply(setting: WeixinSetting)(implicit system: ActorSystem, materializer: ActorMaterializer): HttpApi =
-    new HttpApi(setting)
+  def apply(account: SettingAccount, setting: WeixinSetting
+             )(implicit system: ActorSystem, materializer: ActorMaterializer): HttpApi =
+    new HttpApi(account, setting)
 }
 
 /**
  * 产品推荐使用 WeixinClient
+ * @param account
  * @param setting
  * @param system
  * @param materializer
  */
-class HttpApi private(val setting: WeixinSetting
+class HttpApi private(val account: SettingAccount, val setting: WeixinSetting
                        )(implicit system: ActorSystem, materializer: ActorMaterializer)
   extends StrictLogging {
 
   import system.dispatcher
 
   def getAccessToken: Future[Either[ErrMsg, AccessToken]] = {
-    val url = setting.api.accessToken.format(setting.appId, setting.appSecret)
+    val url = setting.api.accessToken.format(account.appId, account.appSecret)
     httpJson(HttpRequest(uri = url)).map(_.right.map(_.as[AccessToken]))
   }
 

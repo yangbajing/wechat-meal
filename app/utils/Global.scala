@@ -2,7 +2,7 @@ package utils
 
 import com.typesafe.scalalogging.StrictLogging
 import play.api.libs.json.Json
-import play.api.mvc.{RequestHeader, Results, WithFilters}
+import play.api.mvc.{RequestHeader, Results}
 import play.api.{Application, GlobalSettings}
 
 import scala.concurrent.Future
@@ -15,6 +15,7 @@ object Global extends GlobalSettings with StrictLogging {
 
   override def onStart(app: Application) = {
     logger.info("Global.onStarting:")
+
   }
 
   override def onStop(app: Application) = {

@@ -10,7 +10,7 @@ import com.typesafe.scalalogging.StrictLogging
 import me.yangbajing.weixin.mp.domain._
 import me.yangbajing.weixin.mp.message.MessageType
 import me.yangbajing.weixin.mp.response.ErrMsg
-import me.yangbajing.weixin.mp.setting.WeixinSetting
+import me.yangbajing.weixin.mp.setting.{SettingAccount, WeixinSetting}
 import me.yangbajing.weixin.mp.JsonImplicits._
 import me.yangbajing.weixin.mp.WeixinUnmarshallers._
 
@@ -18,10 +18,11 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
 object WeixinClient {
-  def apply(setting: WeixinSetting,
+  def apply(account: SettingAccount,
+            setting: WeixinSetting,
             initFunc: () => (Future[Option[AccessToken]], Future[Option[JsapiTicket]]),
             refreshFunc: (Option[AccessToken], Option[JsapiTicket]) => Unit)(implicit system: ActorSystem, materializer: ActorMaterializer): WeixinClient = {
-    new WeixinClient(setting, initFunc, refreshFunc)
+    new WeixinClient(account, setting, initFunc, refreshFunc)
   }
 }
 
@@ -91,7 +92,8 @@ class JsapiTicketActor(api: HttpApi,
   }
 }
 
-class WeixinClient private(setting: WeixinSetting,
+class WeixinClient private(account: SettingAccount,
+                           setting: WeixinSetting,
                            initFunc: () => (Future[Option[AccessToken]], Future[Option[JsapiTicket]]),
                            refreshFunc: (Option[AccessToken], Option[JsapiTicket]) => Unit)(implicit system: ActorSystem, materializer: ActorMaterializer)
   extends StrictLogging {
@@ -99,7 +101,7 @@ class WeixinClient private(setting: WeixinSetting,
   import setting.akkaTimeout
   import system.dispatcher
 
-  private val api = HttpApi(setting)
+  private val api = HttpApi(account, setting)
 
   val accessTokenActor = system.actorOf(Props(new AccessTokenActor(api, refreshFunc)))
   val jsapiTicketActor = system.actorOf(Props(new JsapiTicketActor(api, accessTokenActor, refreshFunc)))

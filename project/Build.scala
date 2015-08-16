@@ -53,6 +53,8 @@ object Build extends Build {
       libraryDependencies ++= Seq(
         ws,
         _play,
+        _slick,
+        _postgresql,
         _akkaStream,
         _scalaLogging,
         _scalaXml,
@@ -126,10 +128,14 @@ object Build extends Build {
     exclude("org.scala-lang.modules", "scala-xml").
     exclude("org.scala-lang.modules", "scala-parser-combinators")
 
+  val _slick = "com.typesafe.slick" %% "slick" % "3.0.1"
+  val _slickPg = ("com.github.tminglei" %% "slick-pg" % "0.9.2").exclude("com.typesafe.slick", "slick")
+
   val _logback = "ch.qos.logback" % "logback-classic" % "1.1.3"
   val _commonsEmail = "org.apache.commons" % "commons-email" % "1.4"
   val _reactivemongo = "org.reactivemongo" %% "reactivemongo" % "0.11.5"
   val _guava = "com.google.guava" % "guava" % "18.0"
+  val _postgresql = "org.postgresql" % "postgresql" % "9.4-1201-jdbc41"
 
   val _scalatestPlay = "org.scalatestplus" %% "play" % "1.4.0-M4" % "test"
   val _scalatest = "org.scalatest" %% "scalatest" % "2.2.5" % "test"
