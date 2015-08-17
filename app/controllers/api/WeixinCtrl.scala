@@ -76,7 +76,7 @@ class WeixinCtrl @Inject()(weixinService: WeixinService) extends Controller with
     val newTs = Utils.currentTimeSeconds()
     val replyContent =
       if (StringUtils.isEmpty(content)) {
-        "欢迎关注羊八井花园"
+        msg.contentOption getOrElse "欢迎关注羊八井花园"
       } else {
         content
       }

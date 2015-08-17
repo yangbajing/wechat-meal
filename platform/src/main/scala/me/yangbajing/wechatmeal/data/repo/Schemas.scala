@@ -1,18 +1,22 @@
 package me.yangbajing.wechatmeal.data.repo
 
 import java.net.URI
-import javax.inject.Singleton
+import javax.inject.{Inject, Singleton}
 
 import com.typesafe.config.ConfigFactory
+import com.typesafe.scalalogging.StrictLogging
 import me.yangbajing.wechatmeal.data.driver.MyDriver.api._
 import me.yangbajing.wechatmeal.data.model.WeixinAccount
+import play.api.inject.ApplicationLifecycle
+
+import scala.concurrent.Future
 
 /**
  * Schemas
  * Created by Yang Jing (yangbajing@gmail.com) on 2015-08-16.
  */
 @Singleton
-class Schemas {
+class Schemas @Inject()(lifecycle: ApplicationLifecycle) extends StrictLogging {
   val db = {
     val (dbUrl, username, password) =
       Option(System.getenv("DATABASE_URL")) match {
@@ -27,10 +31,14 @@ class Schemas {
           (c.getString("dbUrl"), c.getString("username"), c.getString("password"))
       }
 
-    println(s"dburl: $dbUrl\nusername: $username\npassword: $password")
     Database.forURL(dbUrl, username, password, driver = "org.postgresql.Driver",
       executor = AsyncExecutor("WechatMeal", numThreads = 2, queueSize = 1000))
   }
+
+  lifecycle.addStopHook(() => Future.successful {
+    logger.info("close Database")
+    db.close()
+  })
 
   class TableWeixinAccount(tag: Tag) extends Table[WeixinAccount](tag, "t_weixin_account") {
     val id = column[String]("id", O.PrimaryKey)

@@ -6,7 +6,6 @@ import com.qq.weixin.mp.aes.WXBizMsgCrypt
 import com.typesafe.scalalogging.LazyLogging
 import me.yangbajing.wechatmeal.common.Settings
 import me.yangbajing.wechatmeal.data.repo.WeixinAccountRepo
-import me.yangbajing.weixin.mp.setting.SettingAccount
 import org.apache.commons.codec.digest.DigestUtils
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
@@ -17,8 +16,9 @@ import scala.concurrent.Future
  * Created by Yang Jing (yangbajing@gmail.com) on 2015-08-15.
  */
 @Singleton
-class WeixinService @Inject()(weixinAccountRepo: WeixinAccountRepo, settings: Settings) extends LazyLogging {
-  private val accountFuture: Future[SettingAccount] = weixinAccountRepo.findOneById("wechat_meal").map { v =>
+class WeixinService @Inject()(weixinAccountRepo: WeixinAccountRepo,
+                              settings: Settings) extends LazyLogging {
+  private val accountFuture = weixinAccountRepo.findOneById("wechat_meal").map { v =>
     v.getOrElse(throw new IllegalStateException("WeixinAccount: wechat_meal not found")).toAccount
   }
   private val wxFuture = accountFuture.map(account =>

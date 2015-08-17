@@ -12,10 +12,8 @@ import scala.concurrent.Future
  * Created by jingyang on 15/7/17.
  */
 object Global extends GlobalSettings with StrictLogging {
-
   override def onStart(app: Application) = {
     logger.info("Global.onStarting:")
-
   }
 
   override def onStop(app: Application) = {
