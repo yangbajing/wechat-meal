@@ -6,6 +6,8 @@ import com.qq.weixin.mp.aes.WXBizMsgCrypt
 import com.typesafe.scalalogging.LazyLogging
 import me.yangbajing.wechatmeal.common.Settings
 import me.yangbajing.wechatmeal.data.repo.WeixinAccountRepo
+import me.yangbajing.wechatmeal.utils.Utils
+import me.yangbajing.weixin.mp.message.{OrdinaryTextResponse, OrdinaryResponse, OrdinaryMessage}
 import org.apache.commons.codec.digest.DigestUtils
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
@@ -44,4 +46,28 @@ class WeixinService @Inject()(weixinAccountRepo: WeixinAccountRepo,
     result
   }
 
+  def commandTextMsg(message: OrdinaryMessage): Future[OrdinaryResponse] = {
+    val content = message.content match {
+      case "1" =>
+        "请输入公司邮箱"
+
+      case "2" =>
+        """1: 鱼香肉丝炒饭
+          |2: 回锅内炒饭
+        """.stripMargin
+
+      case "3" =>
+        "暂无记录"
+
+      case _ =>
+        """?: 返回命令菜单
+          |1: 关联账号
+          |2: 今日菜单
+          |3: 点菜记录
+        """.stripMargin
+    }
+    Future {
+      OrdinaryTextResponse(message.fromUserName, message.toUserName, Utils.currentTimeSeconds(), content)
+    }
+  }
 }

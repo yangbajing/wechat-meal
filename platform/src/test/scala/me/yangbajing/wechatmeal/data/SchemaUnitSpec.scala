@@ -1,6 +1,6 @@
 package me.yangbajing.wechatmeal.data
 
-import me.yangbajing.wechatmeal.data.repo.{WeixinAccountRepo, Schemas}
+import me.yangbajing.wechatmeal.data.repo.{Schemas, WeixinAccountRepo}
 import org.scalatest.{BeforeAndAfterAll, Suite}
 
 /**
@@ -10,7 +10,7 @@ import org.scalatest.{BeforeAndAfterAll, Suite}
 trait SchemaUnitSpec extends BeforeAndAfterAll {
   this: Suite =>
 
-  val schemas = new Schemas()
+  val schemas = new Schemas() {}
   val weixinAccountRepo = new WeixinAccountRepo(schemas)
 
   override protected def afterAll(): Unit = {

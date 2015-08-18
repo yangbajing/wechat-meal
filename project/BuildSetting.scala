@@ -60,7 +60,7 @@ object BuildSetting {
     exclude("org.scala-lang.modules", "scala-xml").
     exclude("org.scala-lang.modules", "scala-parser-combinators")
 
-  val _slick = "com.typesafe.slick" %% "slick" % "3.0.1"
+  val _slick = "com.typesafe.slick" %% "slick" % "3.0.2"
   val _slickPg = ("com.github.tminglei" %% "slick-pg" % "0.9.2").exclude("com.typesafe.slick", "slick")
 
   val _logback = "ch.qos.logback" % "logback-classic" % "1.1.3"

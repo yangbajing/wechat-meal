@@ -5,7 +5,6 @@ import javax.inject.{Inject, Singleton}
 import me.yangbajing.wechatmeal.service.WeixinService
 import me.yangbajing.wechatmeal.utils.Utils
 import me.yangbajing.weixin.mp.message._
-import org.apache.commons.lang3.StringUtils
 import play.api.mvc.{Action, Controller}
 import utils.BaseController
 
@@ -41,46 +40,38 @@ class WeixinCtrl @Inject()(weixinService: WeixinService) extends Controller with
       Future.successful(request.body)
     }
 
-    def responseContent(body: String) = {
-      val node = scala.xml.XML.loadString(body)
-      OrdinaryMessage.msgType(node) match {
-        case MessageTypes.Event => // event
+    def responseContent(node: Elem): Future[OrdinaryResponse] = OrdinaryMessage.msgType(node) match {
+      case MessageTypes.Event => // event
+        Future.successful {
           val event = EventMessage(node)
-          if (event.event == EventTypes.Subscribe) {
-            getContent(node, "关注纷享，开启高品质生活第一步。")
-          } else {
-            Future.successful("")
-          }
+          if (event.event == EventTypes.Subscribe)
+            OrdinaryTextResponse(event.fromUserName, event.toUserName, Utils.currentTimeSeconds(),
+              "关注羊八井花园，开启高品质生活第一步。")
+          else
+            OrdinaryEmptyResponse(event.fromUserName, event.toUserName, Utils.currentTimeSeconds())
+        }
 
-        case MessageTypes.Image =>
-          val msg = OrdinaryMessage(node)
-          val curSeconds = Utils.currentTimeSeconds()
-          val respStr = OrdinaryTextResponse(msg.fromUserName, msg.toUserName, curSeconds, "谢谢上传图片！").stringify()
-          weixinService.encryptMsg(respStr, curSeconds, Utils.randomString(8))
+      case MessageTypes.Text =>
+        weixinService.commandTextMsg(OrdinaryMessage(node))
 
-        case _ => // message
-          getContent(node)
-      }
+      case _ => // message
+        Future.successful {
+          val message = OrdinaryMessage(node)
+          OrdinaryTextResponse(message.fromUserName, message.toUserName, Utils.currentTimeSeconds(),
+            message.contentOption.getOrElse(""))
+        }
     }
+
+    def responseResult(resp: OrdinaryResponse): Future[String] =
+      weixinService.encryptMsg(resp.stringify(), Utils.currentTimeSeconds(), Utils.randomString(8))
 
     for {
       body <- getBody
-      resp <- responseContent(body)
+      resp <- responseContent(scala.xml.XML.loadString(body))
+      result <- responseResult(resp)
     } yield {
-      Ok(resp).withHeaders("Content-Type" -> "application/xml; charset=UTF-8")
+      Ok(result).withHeaders("Content-Type" -> "application/xml; charset=UTF-8")
     }
   }
 
-  private def getContent(node: Elem, content: String = ""): Future[String] = {
-    val msg = OrdinaryMessage(node)
-    val newTs = Utils.currentTimeSeconds()
-    val replyContent =
-      if (StringUtils.isEmpty(content)) {
-        msg.contentOption getOrElse "欢迎关注羊八井花园"
-      } else {
-        content
-      }
-    val respStr = OrdinaryTextResponse(msg.fromUserName, msg.toUserName, newTs, replyContent).stringify()
-    weixinService.encryptMsg(respStr, newTs, Utils.randomString(8))
-  }
 }

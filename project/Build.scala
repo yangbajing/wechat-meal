@@ -10,7 +10,7 @@ import play.twirl.sbt.Import.TwirlKeys
 object Build extends Build {
 
   import BuildSetting._
-  
+
   override lazy val settings = super.settings :+ {
     shellPrompt := (s => Project.extract(s).currentProject.id + " > ")
   }

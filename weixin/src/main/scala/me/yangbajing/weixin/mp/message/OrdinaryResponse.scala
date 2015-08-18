@@ -181,6 +181,10 @@ final case class OrdinaryNewsResponse(toUserName: String,
   }
 }
 
+final case class OrdinaryEmptyResponse(toUserName: String,
+                                       fromUserName: String,
+                                       createTime: Long) extends OrdinaryResponse(MessageTypes.Text)
+
 object OrdinaryResponse {
 
   def respText(toUserName: String,
