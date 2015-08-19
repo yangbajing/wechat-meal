@@ -1,5 +1,7 @@
 package me.yangbajing.wechatmeal.service
 
+import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import akka.pattern.ask
 import com.qq.weixin.mp.aes.WXBizMsgCrypt
@@ -11,10 +13,12 @@ import me.yangbajing.wechatmeal.service.actors.{UserMaster, Commands}
 import me.yangbajing.wechatmeal.utils.Utils
 import me.yangbajing.weixin.mp.message.{OrdinaryTextResponse, OrdinaryResponse, OrdinaryMessage}
 import org.apache.commons.codec.digest.DigestUtils
+import play.api.cache.Cache
 import play.api.libs.concurrent.Akka
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.Play.current
 import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 
 /**
  * 微信接口服务
@@ -32,6 +36,15 @@ class WeixinService @Inject()(schemas: Schemas,
     new WXBizMsgCrypt(account.token, account.encodingAESKey, account.appId))
 
   private val userMaster = Akka.system.actorOf(UserMaster.props(schemas), "user-master")
+
+  menuRepo.findCurrentMenu().onSuccess {
+    case Some(menu) =>
+      logger.info("生成当日菜单：" + menu)
+      Cache.set("menu-" + LocalDate.now(), menu, Duration(24, TimeUnit.SECONDS))
+
+    case None =>
+      logger.warn("当日菜单未生成")
+  }
 
   def validateSign(timestamp: String, nonce: String) = accountFuture.map(account =>
     DigestUtils.sha1Hex(Seq(account.token, timestamp, nonce).sorted.mkString))

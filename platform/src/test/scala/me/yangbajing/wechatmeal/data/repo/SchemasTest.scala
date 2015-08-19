@@ -1,7 +1,11 @@
 package me.yangbajing.wechatmeal.data.repo
 
+import java.time.LocalDateTime
+
 import com.typesafe.config.ConfigFactory
 import me.yangbajing.wechatmeal.data.SchemaUnitSpec
+import me.yangbajing.wechatmeal.data.driver.MyDriver.api._
+import me.yangbajing.wechatmeal.data.model.Merchant
 import org.scalatest.WordSpec
 
 /**
@@ -24,10 +28,17 @@ class SchemasTest extends WordSpec with SchemaUnitSpec {
       schemas.schemas.createStatements.foreach(s => println(s + ";"))
     }
 
-//    "insert statements" in {
-//      val wa = WeixinAccount("wechat_meal", "wxce9fa3f24a064072", "547d2259af7497661db9f600302451a4", "ZGRkNGZjODY0NDlmZjFmZGExYzdmODdm", "")
-//      val q = schemas.tWeixinAccount += wa
-//      q.statements.foreach(println)
-//    }
+    //    "insert statements" in {
+    //      val wa = WeixinAccount("wechat_meal", "wxce9fa3f24a064072", "547d2259af7497661db9f600302451a4", "ZGRkNGZjODY0NDlmZjFmZGExYzdmODdm", "")
+    //      val q = schemas.tWeixinAccount += wa
+    //      q.statements.foreach(println)
+    //    }
+
+    "insert meal" in {
+      val merchant = Merchant(0, "泰芙", "两江星汇", None, LocalDateTime.now())
+      val merchantRepo = new MerchantRepo(schemas)
+      val q = schemas.tMerchant returning schemas.tMerchant.map(_.id) += merchant
+      q.statements.foreach(println)
+    }
   }
 }
