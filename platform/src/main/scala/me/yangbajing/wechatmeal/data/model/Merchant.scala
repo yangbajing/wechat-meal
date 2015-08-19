@@ -8,5 +8,6 @@ import java.time.LocalDateTime
  */
 case class Merchant(id: Int,
                     name: String,
+                    address: String,
                     remark: Option[String],
                     createdAt: LocalDateTime)

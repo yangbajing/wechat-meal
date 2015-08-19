@@ -1,15 +1,17 @@
 package me.yangbajing.wechatmeal.data.repo
 
 import java.net.URI
-import java.time.LocalDateTime
+import java.time.{LocalDate, LocalDateTime}
 import javax.inject.{Inject, Singleton}
 
 import com.google.inject.ImplementedBy
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
+import me.yangbajing.wechatmeal.common.enums.MealType
 import me.yangbajing.wechatmeal.data.driver.MyDriver.api._
-import me.yangbajing.wechatmeal.data.model.{Meal, Merchant, WeixinAccount}
+import me.yangbajing.wechatmeal.data.model.{Menu, Meal, Merchant, WeixinAccount}
 import play.api.inject.ApplicationLifecycle
+import play.api.libs.json.JsValue
 
 import scala.concurrent.Future
 
@@ -63,10 +65,11 @@ trait Schemas extends StrictLogging {
   class TableMerchant(tag: Tag) extends Table[Merchant](tag, "t_merchant") {
     val id = column[Int]("id", O.PrimaryKey, O.AutoInc)
     val name = column[String]("name")
+    val address = column[String]("address")
     val remark = column[Option[String]]("remark")
     val createdAt = column[LocalDateTime]("createdAt")
 
-    def * = (id, name, remark, createdAt) <>(Merchant.tupled, Merchant.unapply)
+    def * = (id, name, address, remark, createdAt) <>(Merchant.tupled, Merchant.unapply)
   }
 
   val tMerchant = TableQuery[TableMerchant]
@@ -87,8 +90,24 @@ trait Schemas extends StrictLogging {
 
   val tMeal = TableQuery[TableMeal]
 
+  class TableMenu(tag: Tag) extends Table[Menu](tag, "t_menu") {
+    val id = column[Long]("id", O.PrimaryKey, O.AutoInc)
+    val merchantId = column[Int]("merchantId")
+    val `type` = column[MealType.MealType]("type")
+    val date = column[LocalDate]("date")
+    val menu = column[JsValue]("menu")
+    val createdAt = column[LocalDateTime]("createdAt")
+
+    def __fkMerchant = foreignKey(tableName + "_fk_" + tMerchant.baseTableRow.tableName, merchantId, tMerchant)(_.id)
+
+    def * = (id, merchantId, `type`, date, menu, createdAt) <>(Menu.tupled, Menu.unapply)
+  }
+
+  val tMenu = TableQuery[TableMenu]
+
   def schemas =
     tWeixinAccount.schema ++
       tMerchant.schema ++
-      tMeal.schema
+      tMeal.schema ++
+      tMenu.schema
 }

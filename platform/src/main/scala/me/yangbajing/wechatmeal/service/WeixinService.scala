@@ -5,7 +5,7 @@ import javax.inject.{Inject, Singleton}
 import com.qq.weixin.mp.aes.WXBizMsgCrypt
 import com.typesafe.scalalogging.LazyLogging
 import me.yangbajing.wechatmeal.common.Settings
-import me.yangbajing.wechatmeal.data.repo.WeixinAccountRepo
+import me.yangbajing.wechatmeal.data.repo.{MenuRepo, WeixinAccountRepo}
 import me.yangbajing.wechatmeal.utils.Utils
 import me.yangbajing.weixin.mp.message.{OrdinaryTextResponse, OrdinaryResponse, OrdinaryMessage}
 import org.apache.commons.codec.digest.DigestUtils
@@ -19,6 +19,7 @@ import scala.concurrent.Future
  */
 @Singleton
 class WeixinService @Inject()(weixinAccountRepo: WeixinAccountRepo,
+                              menuRepo: MenuRepo,
                               settings: Settings) extends LazyLogging {
   private val accountFuture = weixinAccountRepo.findOneById("wechat_meal").map { v =>
     v.getOrElse(throw new IllegalStateException("WeixinAccount: wechat_meal not found")).toAccount
@@ -47,27 +48,38 @@ class WeixinService @Inject()(weixinAccountRepo: WeixinAccountRepo,
   }
 
   def commandTextMsg(message: OrdinaryMessage): Future[OrdinaryResponse] = {
-    val content = message.content match {
-      case "1" =>
-        "请输入公司邮箱"
+    menuRepo.findCurrentMenu().map {
+      case None =>
+        "当日菜单未生成，请稍后查看。谢谢！"
 
-      case "2" =>
-        """1: 鱼香肉丝炒饭
-          |2: 回锅内炒饭
-        """.stripMargin
+      case Some(menu) =>
+        menu.toMenus.zipWithIndex.map { case (item, idx) =>
+          s"${idx + 1}：${item.name} (￥${item.price}"
+        }.mkString("\n")
 
-      case "3" =>
-        "暂无记录"
-
-      case _ =>
-        """?: 返回命令菜单
-          |1: 关联账号
-          |2: 今日菜单
-          |3: 点菜记录
-        """.stripMargin
-    }
-    Future {
+    }.map { content =>
       OrdinaryTextResponse(message.fromUserName, message.toUserName, Utils.currentTimeSeconds(), content)
     }
+
+    //    val content = message.content match {
+    //      case "1" =>
+    //        "请输入公司邮箱"
+    //
+    //      case "2" =>
+    //        """1: 鱼香肉丝炒饭
+    //          |2: 回锅内炒饭
+    //        """.stripMargin
+    //
+    //      case "3" =>
+    //        "暂无记录"
+    //
+    //      case _ =>
+    //        """?: 返回命令菜单
+    //          |1: 关联账号
+    //          |2: 今日菜单
+    //          |3: 点菜记录
+    //        """.stripMargin
+    //    }
   }
+  
 }
