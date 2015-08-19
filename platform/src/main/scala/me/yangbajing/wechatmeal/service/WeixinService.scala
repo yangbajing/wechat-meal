@@ -1,16 +1,19 @@
 package me.yangbajing.wechatmeal.service
 
 import javax.inject.{Inject, Singleton}
-
+import akka.pattern.ask
 import com.qq.weixin.mp.aes.WXBizMsgCrypt
 import com.typesafe.scalalogging.LazyLogging
 import me.yangbajing.wechatmeal.common.Settings
-import me.yangbajing.wechatmeal.data.repo.{MenuRepo, WeixinAccountRepo}
+import me.yangbajing.wechatmeal.data.repo.{Schemas, MenuRepo, WeixinAccountRepo}
+import me.yangbajing.wechatmeal.service.actors.Commands.{CommandResult, Command}
+import me.yangbajing.wechatmeal.service.actors.{UserMaster, Commands}
 import me.yangbajing.wechatmeal.utils.Utils
 import me.yangbajing.weixin.mp.message.{OrdinaryTextResponse, OrdinaryResponse, OrdinaryMessage}
 import org.apache.commons.codec.digest.DigestUtils
+import play.api.libs.concurrent.Akka
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-
+import play.api.Play.current
 import scala.concurrent.Future
 
 /**
@@ -18,7 +21,8 @@ import scala.concurrent.Future
  * Created by Yang Jing (yangbajing@gmail.com) on 2015-08-15.
  */
 @Singleton
-class WeixinService @Inject()(weixinAccountRepo: WeixinAccountRepo,
+class WeixinService @Inject()(schemas: Schemas,
+                              weixinAccountRepo: WeixinAccountRepo,
                               menuRepo: MenuRepo,
                               settings: Settings) extends LazyLogging {
   private val accountFuture = weixinAccountRepo.findOneById("wechat_meal").map { v =>
@@ -26,6 +30,8 @@ class WeixinService @Inject()(weixinAccountRepo: WeixinAccountRepo,
   }
   private val wxFuture = accountFuture.map(account =>
     new WXBizMsgCrypt(account.token, account.encodingAESKey, account.appId))
+
+  private val userMaster = Akka.system.actorOf(UserMaster.props(schemas), "user-master")
 
   def validateSign(timestamp: String, nonce: String) = accountFuture.map(account =>
     DigestUtils.sha1Hex(Seq(account.token, timestamp, nonce).sorted.mkString))
@@ -48,18 +54,23 @@ class WeixinService @Inject()(weixinAccountRepo: WeixinAccountRepo,
   }
 
   def commandTextMsg(message: OrdinaryMessage): Future[OrdinaryResponse] = {
-    menuRepo.findCurrentMenu().map {
-      case None =>
-        "当日菜单未生成，请稍后查看。谢谢！"
-
-      case Some(menu) =>
-        menu.toMenus.zipWithIndex.map { case (item, idx) =>
-          s"${idx + 1}：${item.name} (￥${item.price}"
-        }.mkString("\n")
-
-    }.map { content =>
-      OrdinaryTextResponse(message.fromUserName, message.toUserName, Utils.currentTimeSeconds(), content)
+    import me.yangbajing.wechatmeal.utils.Utils.timeout
+    (userMaster ? Command(message.fromUserName, message.content)).mapTo[CommandResult].map { result =>
+      OrdinaryTextResponse(message.fromUserName, message.toUserName, Utils.currentTimeSeconds(), result.content)
     }
+
+    //    menuRepo.findCurrentMenu().map {
+    //      case None =>
+    //        "当日菜单未生成，请稍后查看。谢谢！"
+    //
+    //      case Some(menu) =>
+    //        menu.menus.zipWithIndex.map { case (item, idx) =>
+    //          s"${idx + 1}：${item.name} (￥${item.price}"
+    //        }.mkString("\n")
+    //
+    //    }.map { content =>
+    //      OrdinaryTextResponse(message.fromUserName, message.toUserName, Utils.currentTimeSeconds(), content)
+    //    }
 
     //    val content = message.content match {
     //      case "1" =>
@@ -71,15 +82,11 @@ class WeixinService @Inject()(weixinAccountRepo: WeixinAccountRepo,
     //        """.stripMargin
     //
     //      case "3" =>
-    //        "暂无记录"
+    //        "点餐历史记录未实现"
     //
     //      case _ =>
-    //        """?: 返回命令菜单
-    //          |1: 关联账号
-    //          |2: 今日菜单
-    //          |3: 点菜记录
-    //        """.stripMargin
+    //        Commands.COMMAND_HELP
     //    }
   }
-  
+
 }

@@ -63,7 +63,7 @@ class WeixinCtrl @Inject()(weixinService: WeixinService) extends Controller with
     }
 
     def responseResult(resp: OrdinaryResponse): Future[String] =
-      weixinService.encryptMsg(resp.stringify(), Utils.currentTimeSeconds(), Utils.randomString(8))
+      weixinService.encryptMsg(resp.stringify(), Utils.currentTimeSeconds(), Utils.randomNextInt(10000000, 99999999).toString)
 
     for {
       body <- getBody

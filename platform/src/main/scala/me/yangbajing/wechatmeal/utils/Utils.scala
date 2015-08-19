@@ -5,6 +5,8 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
+import akka.util.Timeout
+
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
 /**
@@ -20,6 +22,8 @@ object Utils {
   val formatDate = DateTimeFormatter.ofPattern("YYYY-MM-dd")
   val formatTime = DateTimeFormatter.ofPattern("HH:mm:ss")
   val random = new SecureRandom()
+
+  implicit val timeout = Timeout(10, TimeUnit.SECONDS)
 
   def randomString(size: Int): String = {
     assert(size > 0, s"size: $size must be > 0")

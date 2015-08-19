@@ -9,7 +9,7 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 import me.yangbajing.wechatmeal.common.enums.MealType
 import me.yangbajing.wechatmeal.data.driver.MyDriver.api._
-import me.yangbajing.wechatmeal.data.model.{Menu, Meal, Merchant, WeixinAccount}
+import me.yangbajing.wechatmeal.data.model._
 import play.api.inject.ApplicationLifecycle
 import play.api.libs.json.JsValue
 
@@ -62,6 +62,17 @@ trait Schemas extends StrictLogging {
 
   val tWeixinAccount = TableQuery[TableWeixinAccount]
 
+  class TableUser(tag: Tag) extends Table[User](tag, "t_user") {
+    val id = column[Long]("id", O.PrimaryKey, O.AutoInc)
+    val openid = column[Option[String]]("openid")
+    val email = column[String]("email")
+    val createdAt = column[LocalDateTime]("createdAt")
+
+    def * = (id, openid, email, createdAt) <>(User.tupled, User.unapply)
+  }
+
+  val tUser = TableQuery[TableUser]
+
   class TableMerchant(tag: Tag) extends Table[Merchant](tag, "t_merchant") {
     val id = column[Int]("id", O.PrimaryKey, O.AutoInc)
     val name = column[String]("name")
@@ -107,6 +118,7 @@ trait Schemas extends StrictLogging {
 
   def schemas =
     tWeixinAccount.schema ++
+      tUser.schema ++
       tMerchant.schema ++
       tMeal.schema ++
       tMenu.schema

@@ -54,6 +54,7 @@ object Build extends Build {
       description := "Wechat Meal",
       libraryDependencies ++= Seq(
         ws,
+        cache,
         _play,
         _slick,
         _slickPg,

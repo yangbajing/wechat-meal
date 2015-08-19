@@ -2,6 +2,7 @@ import java.net.URL
 
 import _root_.sbt.Keys._
 import _root_.sbt._
+import play.core.PlayVersion
 
 object BuildSetting {
 
@@ -49,9 +50,8 @@ object BuildSetting {
   val _akkaActor = "com.typesafe.akka" %% "akka-actor" % verAkka
   val _akkaSlf4j = "com.typesafe.akka" %% "akka-slf4j" % verAkka
 
-  val verPlay = "2.4.2"
-  val _playJson = "com.typesafe.play" %% "play-json" % verPlay % "provided"
-  val _play = ("com.typesafe.play" %% "play" % verPlay % "provided").
+  val _playJson = "com.typesafe.play" %% "play-json" % PlayVersion.current % "provided"
+  val _play = ("com.typesafe.play" %% "play" % PlayVersion.current % "provided").
     exclude("com.typesafe.akka", "akka-actor").
     exclude("com.typesafe.akka", "akka-slf4j").
     exclude("org.scala-lang", "scala-library").

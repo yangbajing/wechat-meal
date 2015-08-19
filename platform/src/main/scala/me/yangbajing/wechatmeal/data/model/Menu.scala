@@ -17,5 +17,5 @@ case class Menu(id: Long,
                 date: LocalDate,
                 menu: JsValue,
                 createdAt: LocalDateTime) {
-  def toMenus = menu.as[Vector[MenuItem]]
+  lazy val menus: Vector[MenuItem] = menu.as[Vector[MenuItem]]
 }
