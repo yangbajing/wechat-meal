@@ -1,6 +1,6 @@
 package me.yangbajing.wechatmeal.data.model
 
-import java.time.{LocalDate, LocalDateTime}
+import java.time.{LocalDate, ZonedDateTime}
 
 import me.yangbajing.wechatmeal.common.enums.MealType
 import me.yangbajing.wechatmeal.data.domain.MenuItem
@@ -16,6 +16,6 @@ case class Menu(id: Long,
                 `type`: MealType.MealType,
                 date: LocalDate,
                 menu: JsValue,
-                createdAt: LocalDateTime) {
+                createdAt: ZonedDateTime) {
   lazy val menus: Vector[MenuItem] = menu.as[Vector[MenuItem]]
 }

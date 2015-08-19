@@ -1,6 +1,6 @@
 package me.yangbajing.wechatmeal.data.model
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 /**
  * 商户
@@ -10,4 +10,4 @@ case class Merchant(id: Int,
                     name: String,
                     address: String,
                     remark: Option[String],
-                    createdAt: LocalDateTime)
+                    createdAt: ZonedDateTime)

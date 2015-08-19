@@ -1,6 +1,6 @@
 package me.yangbajing.wechatmeal.data.domain
 
-import java.time.{LocalDateTime, LocalDate}
+import java.time.{ZonedDateTime, LocalDate}
 
 import me.yangbajing.wechatmeal.common.enums.MealType
 import me.yangbajing.wechatmeal.data.model.Menu
@@ -27,7 +27,7 @@ class MenuDetailTest extends WordSpec {
         MenuItem("海鲜烧豆腐", 20)
       )
 
-      val menu = Menu(0, 1, MealType.Lunch, LocalDate.now(), Json.toJson(menus), LocalDateTime.now())
+      val menu = Menu(0, 1, MealType.Lunch, LocalDate.now(), Json.toJson(menus), ZonedDateTime.now())
       val menuJson = Json.toJson(menu)
       println(Json.prettyPrint(menuJson))
     }

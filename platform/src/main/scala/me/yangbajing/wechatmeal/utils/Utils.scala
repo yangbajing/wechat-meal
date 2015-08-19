@@ -1,7 +1,7 @@
 package me.yangbajing.wechatmeal.utils
 
 import java.security.SecureRandom
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
@@ -41,7 +41,7 @@ object Utils {
   @inline
   def randomNextInt(begin: Int, bound: Int) = random.nextInt(bound - begin) + begin
 
-  def durationFormNow(endAt: LocalDateTime, seconds: Long = 0L, now: LocalDateTime = LocalDateTime.now()): FiniteDuration = {
+  def durationFormNow(endAt: ZonedDateTime, seconds: Long = 0L, now: ZonedDateTime = ZonedDateTime.now()): FiniteDuration = {
     require(now.isBefore(endAt))
     Duration(java.time.Duration.between(now, endAt).getSeconds + seconds, TimeUnit.SECONDS)
   }

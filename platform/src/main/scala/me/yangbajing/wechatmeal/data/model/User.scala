@@ -1,6 +1,6 @@
 package me.yangbajing.wechatmeal.data.model
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 /**
  * User
@@ -9,6 +9,6 @@ import java.time.LocalDateTime
 case class User(id: Long,
                 openid: Option[String],
                 email: String,
-                createdAt: LocalDateTime) {
+                createdAt: ZonedDateTime) {
 
 }

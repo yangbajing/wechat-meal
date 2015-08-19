@@ -43,7 +43,7 @@ class WeixinService @Inject()(schemas: Schemas,
       Cache.set("menu-" + LocalDate.now(), menu, Duration(24, TimeUnit.SECONDS))
 
     case None =>
-      logger.warn("当日菜单未生成")
+      logger.warn("当日菜单未找到")
   }
 
   def validateSign(timestamp: String, nonce: String) = accountFuture.map(account =>

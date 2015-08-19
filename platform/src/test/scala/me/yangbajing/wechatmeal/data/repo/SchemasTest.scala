@@ -1,11 +1,7 @@
 package me.yangbajing.wechatmeal.data.repo
 
-import java.time.LocalDateTime
-
 import com.typesafe.config.ConfigFactory
 import me.yangbajing.wechatmeal.data.SchemaUnitSpec
-import me.yangbajing.wechatmeal.data.driver.MyDriver.api._
-import me.yangbajing.wechatmeal.data.model.Merchant
 import org.scalatest.WordSpec
 
 /**
@@ -34,11 +30,11 @@ class SchemasTest extends WordSpec with SchemaUnitSpec {
     //      q.statements.foreach(println)
     //    }
 
-    "insert meal" in {
-      val merchant = Merchant(0, "泰芙", "两江星汇", None, LocalDateTime.now())
-      val merchantRepo = new MerchantRepo(schemas)
-      val q = schemas.tMerchant returning schemas.tMerchant.map(_.id) += merchant
-      q.statements.foreach(println)
-    }
+    //    "insert meal" in {
+    //      val merchant = Merchant(0, "泰芙", "两江星汇", None, ZonedDateTime.now())
+    //      val merchantRepo = new MerchantRepo(schemas)
+    //      val q = schemas.tMerchant returning schemas.tMerchant.map(_.id) += merchant
+    //      q.statements.foreach(println)
+    //    }
   }
 }

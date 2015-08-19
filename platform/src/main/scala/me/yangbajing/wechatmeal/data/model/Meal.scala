@@ -1,6 +1,6 @@
 package me.yangbajing.wechatmeal.data.model
 
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 /**
  * 餐
@@ -12,4 +12,4 @@ case class Meal(id: Long,
                 price: BigDecimal,
                 images: List[String],
                 remark: Option[String],
-                createdAt: LocalDateTime)
+                createdAt: ZonedDateTime)

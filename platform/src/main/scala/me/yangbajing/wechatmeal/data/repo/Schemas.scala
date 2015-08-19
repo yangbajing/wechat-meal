@@ -1,7 +1,7 @@
 package me.yangbajing.wechatmeal.data.repo
 
 import java.net.URI
-import java.time.{LocalDate, LocalDateTime}
+import java.time.{LocalDate, ZonedDateTime}
 import javax.inject.{Inject, Singleton}
 
 import com.google.inject.ImplementedBy
@@ -66,7 +66,7 @@ trait Schemas extends StrictLogging {
     val id = column[Long]("id", O.PrimaryKey, O.AutoInc)
     val openid = column[Option[String]]("openid")
     val email = column[String]("email")
-    val createdAt = column[LocalDateTime]("createdAt")
+    val createdAt = column[ZonedDateTime]("createdAt")
 
     def * = (id, openid, email, createdAt) <>(User.tupled, User.unapply)
   }
@@ -78,7 +78,7 @@ trait Schemas extends StrictLogging {
     val name = column[String]("name")
     val address = column[String]("address")
     val remark = column[Option[String]]("remark")
-    val createdAt = column[LocalDateTime]("createdAt")
+    val createdAt = column[ZonedDateTime]("createdAt")
 
     def * = (id, name, address, remark, createdAt) <>(Merchant.tupled, Merchant.unapply)
   }
@@ -92,7 +92,7 @@ trait Schemas extends StrictLogging {
     val price = column[BigDecimal]("price")
     val images = column[List[String]]("images")
     val remark = column[Option[String]]("remark")
-    val createdAt = column[LocalDateTime]("createdAt")
+    val createdAt = column[ZonedDateTime]("createdAt")
 
     def __fkMerchant = foreignKey(tableName + "_fk_" + tMerchant.baseTableRow.tableName, merchantId, tMerchant)(_.id)
 
@@ -107,7 +107,7 @@ trait Schemas extends StrictLogging {
     val `type` = column[MealType.MealType]("type")
     val date = column[LocalDate]("date")
     val menu = column[JsValue]("menu")
-    val createdAt = column[LocalDateTime]("createdAt")
+    val createdAt = column[ZonedDateTime]("createdAt")
 
     def __fkMerchant = foreignKey(tableName + "_fk_" + tMerchant.baseTableRow.tableName, merchantId, tMerchant)(_.id)
 
