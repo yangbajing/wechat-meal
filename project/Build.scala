@@ -56,6 +56,7 @@ object Build extends Build {
         ws,
         _play,
         _slick,
+        _slickPg,
         _postgresql,
         _akkaStream,
         _scalaLogging,

@@ -1,13 +1,14 @@
 package me.yangbajing.wechatmeal.data.repo
 
 import java.net.URI
+import java.time.LocalDateTime
 import javax.inject.{Inject, Singleton}
 
 import com.google.inject.ImplementedBy
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.StrictLogging
 import me.yangbajing.wechatmeal.data.driver.MyDriver.api._
-import me.yangbajing.wechatmeal.data.model.WeixinAccount
+import me.yangbajing.wechatmeal.data.model.{Meal, Merchant, WeixinAccount}
 import play.api.inject.ApplicationLifecycle
 
 import scala.concurrent.Future
@@ -59,6 +60,35 @@ trait Schemas extends StrictLogging {
 
   val tWeixinAccount = TableQuery[TableWeixinAccount]
 
+  class TableMerchant(tag: Tag) extends Table[Merchant](tag, "t_merchant") {
+    val id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    val name = column[String]("name")
+    val remark = column[Option[String]]("remark")
+    val createdAt = column[LocalDateTime]("createdAt")
+
+    def * = (id, name, remark, createdAt) <>(Merchant.tupled, Merchant.unapply)
+  }
+
+  val tMerchant = TableQuery[TableMerchant]
+
+  class TableMeal(tag: Tag) extends Table[Meal](tag, "t_meal") {
+    val id = column[Long]("id", O.PrimaryKey, O.AutoInc)
+    val merchantId = column[Int]("merchantId")
+    val name = column[String]("name")
+    val price = column[BigDecimal]("price")
+    val images = column[List[String]]("images")
+    val remark = column[Option[String]]("remark")
+    val createdAt = column[LocalDateTime]("createdAt")
+
+    def __fkMerchant = foreignKey(tableName + "_fk_" + tMerchant.baseTableRow.tableName, merchantId, tMerchant)(_.id)
+
+    def * = (id, merchantId, name, price, images, remark, createdAt) <>(Meal.tupled, Meal.unapply)
+  }
+
+  val tMeal = TableQuery[TableMeal]
+
   def schemas =
-    tWeixinAccount.schema
+    tWeixinAccount.schema ++
+      tMerchant.schema ++
+      tMeal.schema
 }

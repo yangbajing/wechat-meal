@@ -6,7 +6,7 @@ import _root_.sbt._
 object BuildSetting {
 
   val basicSettings = Seq(
-    version := "0.0.1",
+    version := "0.0.2",
     homepage := Some(new URL("http://github.com/yangbajing/wechat-meal")),
     organization := "me.yangbajing",
     organizationHomepage := Some(new URL("https://github.com/yangbajing/wechat-meal")),
