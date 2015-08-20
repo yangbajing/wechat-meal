@@ -40,7 +40,7 @@ class WeixinService @Inject()(schemas: Schemas,
   menuRepo.findCurrentMenu().onSuccess {
     case Some(menu) =>
       logger.info("生成当日菜单：" + menu)
-      Cache.set("menu-" + LocalDate.now(), menu, Duration(24, TimeUnit.SECONDS))
+      Cache.set("menu-" + Utils.nowDate(), menu, Duration(24, TimeUnit.SECONDS))
 
     case None =>
       logger.warn("当日菜单未找到")

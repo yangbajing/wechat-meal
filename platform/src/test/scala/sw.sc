@@ -1,8 +1,16 @@
-import com.typesafe.config.ConfigFactory
-import me.yangbajing.wechatmeal.utils.Utils
+//import com.typesafe.config.ConfigFactory
+//import me.yangbajing.wechatmeal.utils.Utils
+//
+//val config = ConfigFactory.load()
+//
+//config.hasPath("wechat-meal")
+//
+//config.getConfig("weixin")
 
-val config = ConfigFactory.load()
+import java.time._
 
-config.hasPath("wechat-meal")
+ZonedDateTime.now()
+ZonedDateTime.now(ZoneId.of("-8"))
 
-config.getConfig("weixin")
+LocalDate.now()
+LocalDate.now(ZoneId.of("-8"))

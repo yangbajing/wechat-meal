@@ -6,6 +6,7 @@ import akka.actor.{Actor, Props}
 import me.yangbajing.wechatmeal.data.model.{Menu, User}
 import me.yangbajing.wechatmeal.data.repo.{UserRepo, Schemas}
 import me.yangbajing.wechatmeal.service.actors.Commands._
+import me.yangbajing.wechatmeal.utils.Utils
 import play.api.Play.current
 import play.api.cache.Cache
 
@@ -40,7 +41,7 @@ class UserWorker(schemas: Schemas) extends Actor {
 
   override def receive: Receive = {
     case Command(openid, Command.MENU) =>
-      val nowDate = LocalDate.now()
+      val nowDate = Utils.nowDate()
       Cache.getAs[Menu]("menu-" + nowDate) match {
         case Some(menu) if menu.date == nowDate =>
           menu.menus.zipWithIndex.map { case (item, idx) => s"${idx + 1}: ${item.name} (￥${item.price})" }

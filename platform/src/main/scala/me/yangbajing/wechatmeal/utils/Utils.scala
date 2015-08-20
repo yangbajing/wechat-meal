@@ -1,7 +1,7 @@
 package me.yangbajing.wechatmeal.utils
 
 import java.security.SecureRandom
-import java.time.ZonedDateTime
+import java.time.{LocalDate, ZoneId, ZonedDateTime}
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
@@ -25,6 +25,10 @@ object Utils {
 
   implicit val timeout = Timeout(10, TimeUnit.SECONDS)
 
+  def now() = ZonedDateTime.now(ZoneId.of("+8"))
+
+  def nowDate() = LocalDate.now(ZoneId.of("+8"))
+
   def randomString(size: Int): String = {
     assert(size > 0, s"size: $size must be > 0")
     (0 until size).map(_ => RANDOM_STRING.charAt(random.nextInt(RANDOM_STRING_LENGTH))).mkString
@@ -41,7 +45,7 @@ object Utils {
   @inline
   def randomNextInt(begin: Int, bound: Int) = random.nextInt(bound - begin) + begin
 
-  def durationFormNow(endAt: ZonedDateTime, seconds: Long = 0L, now: ZonedDateTime = ZonedDateTime.now()): FiniteDuration = {
+  def durationFormNow(endAt: ZonedDateTime, seconds: Long = 0L, now: ZonedDateTime = Utils.now()): FiniteDuration = {
     require(now.isBefore(endAt))
     Duration(java.time.Duration.between(now, endAt).getSeconds + seconds, TimeUnit.SECONDS)
   }

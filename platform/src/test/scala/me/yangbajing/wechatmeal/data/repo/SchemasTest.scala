@@ -31,7 +31,7 @@ class SchemasTest extends WordSpec with SchemaUnitSpec {
     //    }
 
     //    "insert meal" in {
-    //      val merchant = Merchant(0, "泰芙", "两江星汇", None, ZonedDateTime.now())
+    //      val merchant = Merchant(0, "泰芙", "两江星汇", None, Utils.now())
     //      val merchantRepo = new MerchantRepo(schemas)
     //      val q = schemas.tMerchant returning schemas.tMerchant.map(_.id) += merchant
     //      q.statements.foreach(println)

@@ -4,6 +4,7 @@ import java.time.{ZonedDateTime, LocalDate}
 
 import me.yangbajing.wechatmeal.common.enums.MealType
 import me.yangbajing.wechatmeal.data.model.Menu
+import me.yangbajing.wechatmeal.utils.Utils
 import org.scalatest.WordSpec
 import play.api.libs.json.Json
 import me.yangbajing.wechatmeal.data.JsonImplicits._
@@ -27,7 +28,7 @@ class MenuDetailTest extends WordSpec {
         MenuItem("海鲜烧豆腐", 20)
       )
 
-      val menu = Menu(0, 1, MealType.Lunch, LocalDate.now(), Json.toJson(menus), ZonedDateTime.now())
+      val menu = Menu(0, 1, MealType.Lunch, Utils.nowDate(), Json.toJson(menus), Utils.now())
       val menuJson = Json.toJson(menu)
       println(Json.prettyPrint(menuJson))
     }
