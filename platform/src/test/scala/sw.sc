@@ -13,4 +13,4 @@ ZonedDateTime.now()
 ZonedDateTime.now(ZoneId.of("-8"))
 
 LocalDate.now()
-LocalDate.now(ZoneId.of("-8"))
+"menu-" + LocalDate.now(ZoneId.of("-8"))

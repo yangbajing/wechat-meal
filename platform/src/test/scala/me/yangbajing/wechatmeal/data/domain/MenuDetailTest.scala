@@ -1,13 +1,11 @@
 package me.yangbajing.wechatmeal.data.domain
 
-import java.time.{ZonedDateTime, LocalDate}
-
 import me.yangbajing.wechatmeal.common.enums.MealType
+import me.yangbajing.wechatmeal.data.JsonImplicits._
 import me.yangbajing.wechatmeal.data.model.Menu
 import me.yangbajing.wechatmeal.utils.Utils
 import org.scalatest.WordSpec
 import play.api.libs.json.Json
-import me.yangbajing.wechatmeal.data.JsonImplicits._
 
 /**
  * MenuDetailTest
@@ -30,7 +28,7 @@ class MenuDetailTest extends WordSpec {
 
       val menu = Menu(0, 1, MealType.Lunch, Utils.nowDate(), Json.toJson(menus), Utils.now())
       val menuJson = Json.toJson(menu)
-      println(Json.prettyPrint(menuJson))
+      println(Json.stringify(menuJson))
     }
   }
 }

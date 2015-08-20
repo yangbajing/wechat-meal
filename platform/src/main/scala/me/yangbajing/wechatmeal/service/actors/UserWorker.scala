@@ -2,7 +2,7 @@ package me.yangbajing.wechatmeal.service.actors
 
 import java.time.LocalDate
 
-import akka.actor.{Actor, Props}
+import akka.actor.{ActorLogging, Actor, Props}
 import me.yangbajing.wechatmeal.data.model.{Menu, User}
 import me.yangbajing.wechatmeal.data.repo.{UserRepo, Schemas}
 import me.yangbajing.wechatmeal.service.actors.Commands._
@@ -19,7 +19,7 @@ object UserWorker {
   def props(schemas: Schemas) = Props(new UserWorker(schemas))
 }
 
-class UserWorker(schemas: Schemas) extends Actor {
+class UserWorker(schemas: Schemas) extends Actor with ActorLogging {
 
   import context.dispatcher
 
@@ -42,7 +42,9 @@ class UserWorker(schemas: Schemas) extends Actor {
   override def receive: Receive = {
     case Command(openid, Command.MENU) =>
       val nowDate = Utils.nowDate()
-      Cache.getAs[Menu]("menu-" + nowDate) match {
+      val key = "menu-" + nowDate
+      log.info("get cache key: " + key)
+      Cache.getAs[Menu](key) match {
         case Some(menu) if menu.date == nowDate =>
           menu.menus.zipWithIndex.map { case (item, idx) => s"${idx + 1}: ${item.name} (￥${item.price})" }
           context.become(menuReceive(menu))
