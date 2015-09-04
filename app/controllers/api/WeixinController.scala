@@ -16,7 +16,7 @@ import scala.xml.Elem
  * Created by Yang Jing (yangbajing@gmail.com) on 2015-08-15.
  */
 @Singleton
-class WeixinCtrl @Inject()(weixinService: WeixinService) extends Controller with BaseController {
+class WeixinController @Inject()(weixinService: WeixinService) extends Controller with BaseController {
   def get(signature: String, echostr: String, timestamp: String, nonce: String) = Action.async { request =>
     logger.debug(request.rawQueryString)
 

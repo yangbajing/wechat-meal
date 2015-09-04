@@ -16,8 +16,27 @@ class UserRepo @Inject()(schemas: Schemas) {
 
   import schemas._
 
+  def update(userId: Long, body: User)(implicit ec: ExecutionContext) = {
+    val action = tUser.filter(_.id === userId).update(body).transactionally
+    db.run(action).map(_ => body)
+  }
+
+  def findOneById(userId: Long)(implicit ec: ExecutionContext): Future[Option[User]] = {
+    db.run(tUser.filter(_.id === userId).result).map(_.headOption)
+  }
+
+  def insert(user: User): Future[Long] = {
+    val action = (tUser returning tUser.map(_.id) += user).transactionally
+    db.run(action)
+  }
+
   def findOneByOpenid(openid: String)(implicit ec: ExecutionContext): Future[Option[User]] = {
     db.run(tUser.filter(_.openid === openid).result).map(_.headOption)
+  }
+
+  def updateEmailByOpenid(openid: String, email: String): Future[Int] = {
+    val action = tUser.filter(_.openid === openid).map(_.email).update(Some(email)).transactionally
+    db.run(action)
   }
 }
 

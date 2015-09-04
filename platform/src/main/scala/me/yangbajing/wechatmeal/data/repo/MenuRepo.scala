@@ -1,6 +1,5 @@
 package me.yangbajing.wechatmeal.data.repo
 
-import java.time.{ZoneId, LocalDate}
 import javax.inject.{Inject, Singleton}
 
 import me.yangbajing.wechatmeal.data.driver.MyDriver.api._
@@ -17,6 +16,15 @@ import scala.concurrent.{ExecutionContext, Future}
 class MenuRepo @Inject()(schemas: Schemas) {
 
   import schemas._
+
+  def findOneById(menuId: Long)(implicit ec: ExecutionContext) = {
+    db.run(tMenu.filter(_.id === menuId).result).map(_.headOption)
+  }
+
+  def insert(menu: Menu): Future[Long] = {
+    val action = (tMenu returning tMenu.map(_.id) += menu).transactionally
+    db.run(action)
+  }
 
   def findCurrentMenu()(implicit ec: ExecutionContext): Future[Option[Menu]] = {
     db.run(tMenu.filter(_.date === Utils.nowDate()).result).map(_.headOption)

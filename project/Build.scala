@@ -59,7 +59,7 @@ object Build extends Build {
         _slick,
         _slickPg,
         _postgresql,
-        _akkaStream,
+        _bson,
         _scalaLogging,
         _scalaXml,
         _scalatest))
@@ -70,11 +70,12 @@ object Build extends Build {
     .settings(
       description := "weixin",
       libraryDependencies ++= Seq(
-        ws % "provided",
         _playJson,
-        _akkaHttp % "provided",
-        _scalaLogging % "provided",
-        _scalaXml % "provided",
+        _commonsCodec,
+        _akkaHttp,
+        _akkaHttpPlayJson,
+        _scalaLogging,
+        _scalaXml,
         _scalatest))
 
 }

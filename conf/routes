@@ -1,3 +1,12 @@
-GET         /                  @controllers.PageController.index()
-GET         /api/weixin        @controllers.api.WeixinCtrl.get(signature: String, echostr: String, timestamp: String, nonce: String)
-POST        /api/weixin        @controllers.api.WeixinCtrl.post()
+GET         /                        @controllers.PageController.index()
+GET         /api/weixin              @controllers.api.WeixinController.get(signature: String, echostr: String, timestamp: String, nonce: String)
+POST        /api/weixin              @controllers.api.WeixinController.post()
+PUT         /api/user/:userId        @controllers.api.UserController.update(userId: Long)
+GET         /api/user/:userId        @controllers.api.UserController.get(userId: Long)
+
+POST        /api/menu                @controllers.api.MenuController.create()
+GET         /api/menu/:menuId        @controllers.api.MenuController.findOneById(menuId: Long)
+
+GET         /api/meal_history        @controllers.api.MealHistoryController.currentDate()
+
+POST        /test/weixin             @controllers.api.TestWeixinCtrl.post()

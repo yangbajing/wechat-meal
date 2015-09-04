@@ -37,12 +37,11 @@ object BuildSetting {
 
   val _scalaXml = "org.scala-lang.modules" %% "scala-xml" % "1.0.4"
 
-  val _scalaLogging = ("com.typesafe.scala-logging" %% "scala-logging" % "3.1.0").exclude("org.scala-lang", "scala-library").exclude("org.scala-lang", "scala-reflect")
-  val _typesafeConfig = "com.typesafe" % "config" % "1.3.0"
+  val _scalaLogging = ("com.typesafe.scala-logging" %% "scala-logging" % "3.1.0")
+    .exclude("org.scala-lang", "scala-library")
+    .exclude("org.scala-lang", "scala-reflect")
 
   val verAkkaHttp = "1.0"
-  val _akkaStream = "com.typesafe.akka" %% "akka-stream-experimental" % verAkkaHttp
-  val _akkaHttpCore = "com.typesafe.akka" %% "akka-http-core-experimental" % verAkkaHttp
   val _akkaHttp = "com.typesafe.akka" %% "akka-http-experimental" % verAkkaHttp
   val _akkaHttpPlayJson = "de.heikoseeberger" %% "akka-http-play-json" % "1.0.0"
 
@@ -63,10 +62,10 @@ object BuildSetting {
   val _slick = "com.typesafe.slick" %% "slick" % "3.0.2"
   val _slickPg = ("com.github.tminglei" %% "slick-pg" % "0.9.2").exclude("com.typesafe.slick", "slick")
 
+  val _bson = "org.mongodb" % "bson" % "3.0.3"
   val _logback = "ch.qos.logback" % "logback-classic" % "1.1.3"
+  val _commonsCodec = "commons-codec" % "commons-codec" % "1.10"
   val _commonsEmail = "org.apache.commons" % "commons-email" % "1.4"
-  val _reactivemongo = "org.reactivemongo" %% "reactivemongo" % "0.11.5"
-  val _guava = "com.google.guava" % "guava" % "18.0"
   val _postgresql = "org.postgresql" % "postgresql" % "9.4-1201-jdbc41"
 
   val _scalatestPlay = "org.scalatestplus" %% "play" % "1.4.0-M4" % "test"
