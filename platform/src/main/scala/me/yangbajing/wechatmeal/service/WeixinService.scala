@@ -40,12 +40,11 @@ class WeixinService @Inject()(schemas: Schemas,
 
   private val userMaster = Akka.system.actorOf(UserMaster.props(schemas, cacheApi), "user-master")
 
-  menuRepo.findCurrentMenu().onSuccess {
+  menuRepo.findOneByDate(Utils.nowDate()).onSuccess {
     case Some(menu) =>
       val key = "menu-" + Utils.nowDate()
       logger.info(s"生成当日菜单 $key：$menu")
       cacheApi.set(key, menu, Duration(24, TimeUnit.HOURS))
-
     case None =>
       logger.warn("当日菜单未找到")
   }

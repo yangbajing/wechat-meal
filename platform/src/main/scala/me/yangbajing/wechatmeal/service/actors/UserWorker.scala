@@ -20,10 +20,10 @@ import scala.util.{Failure, Success}
  * Created by Yang Jing (yangbajing@gmail.com) on 2015-08-16.
  */
 object UserWorker {
-  def props(initUser: Option[User], schemas: Schemas, cacheApi: CacheApi) = Props(new UserWorker(initUser, schemas, cacheApi))
+  def props(initUser: User, schemas: Schemas, cacheApi: CacheApi) = Props(new UserWorker(initUser, schemas, cacheApi))
 }
 
-class UserWorker(initUser: Option[User], schemas: Schemas, cacheApi: CacheApi) extends Actor with StrictLogging {
+class UserWorker(initUser: User, schemas: Schemas, cacheApi: CacheApi) extends Actor with StrictLogging {
 
   import context.dispatcher
 
@@ -43,24 +43,22 @@ class UserWorker(initUser: Option[User], schemas: Schemas, cacheApi: CacheApi) e
   override def receive: Receive = {
     case command: Command =>
       curUser match {
-        case Some(user) if user.status == UserStatus.ACTIVE =>
+        case user if user.status == UserStatus.ACTIVE =>
           // if user active
           // agent to commandReceive
           commandReceive(command)
-        case Some(user) =>
+        case user if user.email.isEmpty =>
+          sender() ! CommandResult(COMMAND_BIND)
+          context.become(bindReceive)
+        case user =>
           // if user inactive
           // agent to pendingActiveReceive
           pendingActiveReceive(command)
-        case None =>
-          sender() ! CommandResult(COMMAND_BIND)
-          context.become(bindReceive)
       }
 
     case SetUser(user) =>
-      curUser = Some(user)
-      //      if (user.status == UserStatus.ACTIVE) {
+      curUser = user
       context.become(receive)
-    //      }
   }
 
   val commandReceive: PartialFunction[Command, Unit] = {
@@ -68,21 +66,41 @@ class UserWorker(initUser: Option[User], schemas: Schemas, cacheApi: CacheApi) e
       val nowDate = Utils.nowDate()
       val key = "menu-" + nowDate
       logger.info("get cache key: " + key)
+      val doSender = sender()
       cacheApi.get[Menu](key) match {
         case Some(menu) if menu.date isEqual nowDate =>
-          logger.info(menu.toString)
-          logger.info((menu.date isEqual nowDate).toString)
-          menu.menus.zipWithIndex.map { case (item, idx) => s"${idx + 1}: ${item.name} (￥${item.price})" }
-          sender() ! CommandResult(menu.prettyString())
-          context.become(menuReceive(menu))
+          MealHistoryRepo(schemas).findOneByDate(curUser.id, Utils.nowDate()).onComplete {
+            case Success(Some(mealHistory)) =>
+              doSender ! CommandResult("您已订餐\n" + mealHistory.name + " ￥" + mealHistory.price)
+
+            case Success(None) =>
+              logger.info(menu.toString)
+              logger.info((menu.date isEqual nowDate).toString)
+              menu.menus.zipWithIndex.map { case (item, idx) => s"${idx + 1}: ${item.name} (￥${item.price})" }
+              doSender ! CommandResult(menu.prettyString())
+              context.become(menuReceive(menu))
+
+            case Failure(e) =>
+              doSender ! CommandResult("internal servier error")
+              logger.error(e.toString, e)
+          }
+          
         case _ =>
-          sender() ! CommandResult("当日菜单未生成\n\n" + COMMAND_HELP)
+          doSender ! CommandResult("当日菜单未生成\n\n" + COMMAND_HELP)
       }
 
-    case Command(_, Command.HISTORY) =>
-      MealHistoryRepo(schemas).findByDate(Utils.nowDate())
 
-      sender() ! CommandResult("点餐历史记录未实现\n\n" + COMMAND_HELP)
+    case Command(_, Command.HISTORY) =>
+      val doSender = sender()
+      MealHistoryRepo(schemas).findOneByDate(curUser.id, Utils.nowDate()).onComplete {
+        case Success(Some(mealHistory)) =>
+          doSender ! CommandResult(mealHistory.name + " ￥" + mealHistory.price)
+        case Success(None) =>
+          doSender ! CommandResult("今日您还未订餐\n\n" + COMMAND_HELP)
+        case Failure(e) =>
+          doSender ! CommandResult("internal servier error")
+          logger.error(e.toString, e)
+      }
 
     case _ =>
       sender() ! CommandResult(COMMAND_HELP)
@@ -95,9 +113,9 @@ class UserWorker(initUser: Option[User], schemas: Schemas, cacheApi: CacheApi) e
 
     case Command(_, _) =>
       curUser match {
-        case Some(u) =>
+        case u if u.email.isDefined =>
           sender() ! CommandResult(s"已绑定账号：${u.email}，请等待管理员审核。或输入：\n1: 重新绑定公司邮箱")
-        case None =>
+        case _ =>
           sender() ! CommandResult("internal server error\n\n" + COMMAND_HELP)
       }
   }
@@ -110,6 +128,7 @@ class UserWorker(initUser: Option[User], schemas: Schemas, cacheApi: CacheApi) e
       UserRepo(schemas).updateEmailByOpenid(openid, email).onComplete {
         case Success(_) =>
           doSender ! CommandResult(s"账号：$email 绑定成功\n\n" + COMMAND_HELP)
+          context.become(receive)
         case Failure(e) =>
           logger.error(e.toString, e)
           doSender ! CommandResult(s"账号：$email 已被绑定，请使用其它邮箱进行绑定")
@@ -124,7 +143,7 @@ class UserWorker(initUser: Option[User], schemas: Schemas, cacheApi: CacheApi) e
         val item = menu.menus(mealNo - 1)
 
         // 持久化到数据库
-        val mealHistory = MealHistory(ObjectId.get(), curUser.get.id, item.name, item.price, Utils.nowDate(), Utils.now())
+        val mealHistory = MealHistory(ObjectId.get(), curUser.id, item.name, item.price, Utils.nowDate(), Utils.now())
         MealHistoryRepo(schemas).insert(mealHistory)
 
         sender() ! CommandResult(s"已点餐：${item.name} ￥${item.price}\n\n" + COMMAND_HELP)

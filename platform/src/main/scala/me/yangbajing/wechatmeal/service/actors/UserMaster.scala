@@ -3,10 +3,14 @@ package me.yangbajing.wechatmeal.service.actors
 import akka.actor.{Actor, ActorLogging, Props}
 import akka.pattern.ask
 import com.typesafe.scalalogging.{LazyLogging, StrictLogging}
+import me.yangbajing.wechatmeal.common.enums.UserStatus
+import me.yangbajing.wechatmeal.data.model.User
 import me.yangbajing.wechatmeal.data.repo.{UserRepo, Schemas}
 import me.yangbajing.wechatmeal.service.actors.command.{SetUser, Command, CommandResult}
+import me.yangbajing.wechatmeal.utils.Utils
 import play.api.cache.CacheApi
 
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 /**
@@ -31,10 +35,16 @@ class UserMaster(schemas: Schemas, cacheApi: CacheApi) extends Actor with LazyLo
         case Some(worker) =>
           worker ? command
         case None =>
-          for {
-            initUser <- UserRepo(schemas).findOneByOpenid(openid)
-            result <- context.actorOf(UserWorker.props(initUser, schemas, cacheApi), openid).ask(command)
-          } yield result
+          val userRepo = UserRepo(schemas)
+          userRepo.findOneByOpenid(openid).flatMap {
+            case Some(user) =>
+              Future.successful(user)
+            case None =>
+              val user = User(0L, Some(openid), None, UserStatus.INACTIVE, Utils.now())
+              userRepo.insert(user).map(id => user.copy(id = id))
+          }.flatMap { initUser =>
+            context.actorOf(UserWorker.props(initUser, schemas, cacheApi), openid) ? command
+          }
       }) onComplete {
         case Success(result) =>
           doSender ! result

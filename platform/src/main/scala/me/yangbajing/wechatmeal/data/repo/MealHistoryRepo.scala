@@ -6,7 +6,7 @@ import javax.inject.{Inject, Singleton}
 import me.yangbajing.wechatmeal.data.driver.MyDriver.api._
 import me.yangbajing.wechatmeal.data.model.MealHistory
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * 订餐历史
@@ -16,6 +16,11 @@ import scala.concurrent.Future
 class MealHistoryRepo @Inject()(schemas: Schemas) {
 
   import schemas._
+
+  def findOneByDate(userId: Long, date: LocalDate)(implicit ec: ExecutionContext): Future[Option[MealHistory]] = {
+    val q = tMealHistory.filter(t => t.date === date && t.userId === userId).result
+    db.run(q).map(_.headOption)
+  }
 
   def findByDate(date: LocalDate): Future[Seq[MealHistory]] = {
     db.run(tMealHistory.filter(_.date === date).result)
