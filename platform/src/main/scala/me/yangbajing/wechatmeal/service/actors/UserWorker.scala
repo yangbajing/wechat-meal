@@ -47,18 +47,21 @@ class UserWorker(initUser: User, schemas: Schemas, cacheApi: CacheApi) extends A
           // if user active
           // agent to commandReceive
           commandReceive(command)
-        case user if user.email.isEmpty =>
-          sender() ! CommandResult(COMMAND_BIND)
-          context.become(bindReceive)
-        case user =>
-          // if user inactive
+        case user if user.email.isDefined =>
+          // if user inactive && email is bind
           // agent to pendingActiveReceive
           pendingActiveReceive(command)
+          context.become(pendingActiveReceive)
+        case user =>
+          sender() ! CommandResult(COMMAND_BIND)
+          context.become(bindReceive)
       }
 
     case SetUser(user) =>
       curUser = user
-      context.become(receive)
+      if (curUser.status == UserStatus.ACTIVE) {
+        context.become(receive)
+      }
   }
 
   val commandReceive: PartialFunction[Command, Unit] = {
@@ -84,7 +87,7 @@ class UserWorker(initUser: User, schemas: Schemas, cacheApi: CacheApi) extends A
               doSender ! CommandResult("internal servier error")
               logger.error(e.toString, e)
           }
-          
+
         case _ =>
           doSender ! CommandResult("当日菜单未生成\n\n" + COMMAND_HELP)
       }
@@ -106,7 +109,7 @@ class UserWorker(initUser: User, schemas: Schemas, cacheApi: CacheApi) extends A
       sender() ! CommandResult(COMMAND_HELP)
   }
 
-  val pendingActiveReceive: Receive = {
+  def pendingActiveReceive: Receive = {
     case c@Command(_, Command.BIND) =>
       sender() ! CommandResult(COMMAND_BIND)
       context.become(bindReceive)
