@@ -12,6 +12,10 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
  */
 @Singleton
 class UserService @Inject()(userRepo: UserRepo) {
+  def signup(account: String, password: String) = userRepo.signup(account, password)
+
+  def signin(account: String, password: String) = userRepo.signin(account, password)
+
   def update(userId: Long, body: User) = {
     userRepo.update(userId, body).map { bo =>
       // TODO 更新 UserWorker curUser

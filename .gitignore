@@ -24,6 +24,8 @@ server.pid
 *.iml
 *.eml
 
+front-end/node_modules/
+
 # sbt specific
 dist/*
 lib_managed/

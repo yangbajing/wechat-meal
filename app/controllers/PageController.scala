@@ -2,7 +2,6 @@ package controllers
 
 import javax.inject.Singleton
 
-import me.yangbajing.wechatmeal.utils.Utils
 import play.api.mvc.{Action, Controller}
 
 /**
@@ -12,6 +11,6 @@ import play.api.mvc.{Action, Controller}
 @Singleton
 class PageController extends Controller {
   def index = Action {
-    Ok("Wechat Meal: " + Utils.now() + "\n" + Utils.nowDate())
+    Ok(views.html.index())
   }
 }

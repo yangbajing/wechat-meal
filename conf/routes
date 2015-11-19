@@ -1,6 +1,9 @@
 GET         /                        @controllers.PageController.index()
+
 GET         /api/weixin              @controllers.api.WeixinController.get(signature: String, echostr: String, timestamp: String, nonce: String)
 POST        /api/weixin              @controllers.api.WeixinController.post()
+POST        /api/user/signin         @controllers.api.UserController.signin()
+POST        /api/user/signup         @controllers.api.UserController.signup()
 PUT         /api/user/:userId        @controllers.api.UserController.update(userId: Long)
 GET         /api/user/:userId        @controllers.api.UserController.get(userId: Long)
 

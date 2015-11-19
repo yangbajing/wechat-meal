@@ -1,9 +1,12 @@
-@()
+@(title: String, head: Html = Html(""), foot: Html = Html(""))(content: Html)
 <html>
     <head>
-        <title>Wechat Meal</title>
+        <title>@title - 羊八井</title>
+        <link rel="stylesheet" href="/assets/vender/css/bootstrap.css">
+        @head
     </head>
     <body>
-        <h1>Wechat Meal</h1>
+        @content
+        @foot
     </body>
 </html>

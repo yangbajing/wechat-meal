@@ -40,7 +40,7 @@ class UserMaster(schemas: Schemas, cacheApi: CacheApi) extends Actor with LazyLo
             case Some(user) =>
               Future.successful(user)
             case None =>
-              val user = User(0L, Some(openid), None, UserStatus.INACTIVE, Utils.now())
+              val user = User(0L, Some(openid), None, UserStatus.INACTIVE, Nil, Utils.now())
               userRepo.insert(user).map(id => user.copy(id = id))
           }.flatMap { initUser =>
             context.actorOf(UserWorker.props(initUser, schemas, cacheApi), openid) ? command

@@ -46,9 +46,8 @@ trait Schemas extends StrictLogging {
   }
 
   val tWeixinAccount = TableQuery[TableWeixinAccount]
-
   val tUser = TableQuery[TableUser]
-
+  val tCredential = TableQuery[TableCredential]
   val tMenu = TableQuery[TableMenu]
 
   val tMealHistory = TableQuery[TableMealHistory]

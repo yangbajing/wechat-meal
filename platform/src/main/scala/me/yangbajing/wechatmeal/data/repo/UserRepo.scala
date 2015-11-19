@@ -2,8 +2,11 @@ package me.yangbajing.wechatmeal.data.repo
 
 import javax.inject.{Inject, Singleton}
 
+import me.yangbajing.wechatmeal.common.Permissions
+import me.yangbajing.wechatmeal.common.enums.UserStatus
 import me.yangbajing.wechatmeal.data.driver.MyDriver.api._
-import me.yangbajing.wechatmeal.data.model.User
+import me.yangbajing.wechatmeal.data.model.{Credential, User}
+import me.yangbajing.wechatmeal.utils.Utils
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -16,6 +19,31 @@ class UserRepo @Inject()(schemas: Schemas) {
 
   import schemas._
 
+  def signup(account: String, password: String)(implicit ec: ExecutionContext): Future[Long] = {
+    val now = Utils.now()
+    val u = for {
+      id <- tCredential returning tCredential.map(_.id) += Credential(0L, Array(), Array(), now)
+      _ <- tUser += User(id, None, Some(account), UserStatus.CERTIFIED, List(Permissions.ADMIN), now)
+    } yield id
+    db.run(u.transactionally)
+  }
+
+  def signin(account: String, password: String)(implicit ec: ExecutionContext): Future[Option[User]] = {
+    val q = for {
+      u <- tUser.filter(_.email === account)
+      c <- tCredential.filter(_.id === u.id)
+    } yield (u, c)
+
+    db.run(q.result).map(_.headOption).map {
+      case Some((u, c)) =>
+        if (Utils.matchPassword(c.salt, c.password, password)) Some(u)
+        else throw new RuntimeException("密码不正确")
+
+      case None =>
+        None
+    }
+  }
+
   def update(userId: Long, body: User)(implicit ec: ExecutionContext) = {
     val action = tUser.filter(_.id === userId).update(body).transactionally
     db.run(action).map(_ => body)
@@ -25,9 +53,13 @@ class UserRepo @Inject()(schemas: Schemas) {
     db.run(tUser.filter(_.id === userId).result).map(_.headOption)
   }
 
-  def insert(user: User): Future[Long] = {
-    val action = (tUser returning tUser.map(_.id) += user).transactionally
-    db.run(action)
+  def insert(user: User)(implicit ec: ExecutionContext): Future[Long] = {
+    val now = Utils.now()
+    val u = for {
+      id <- tCredential returning tCredential.map(_.id) += Credential(0L, Array(), Array(), now)
+      _ <- tUser += user.copy(id = id)
+    } yield id
+    db.run(u.transactionally)
   }
 
   def findOneByOpenid(openid: String)(implicit ec: ExecutionContext): Future[Option[User]] = {

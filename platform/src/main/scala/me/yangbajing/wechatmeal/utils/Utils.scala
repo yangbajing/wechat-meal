@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
 import akka.util.Timeout
+import org.apache.commons.codec.digest.DigestUtils
 
 import scala.concurrent.duration.{Duration, FiniteDuration}
 
@@ -14,6 +15,7 @@ import scala.concurrent.duration.{Duration, FiniteDuration}
  * Created by Yang Jing (yangbajing@gmail.com) on 2015-08-15.
  */
 object Utils {
+
   private final val LOW = 33
   private final val HIGH = 127
   private final val RANDOM_STRING = (0 to 9).mkString + ('a' to 'z').mkString + ('A' to 'Z').mkString + ",.?!~`@#$%^&*()_-+=|[]{};:<>/"
@@ -28,6 +30,28 @@ object Utils {
   def now() = ZonedDateTime.now(ZoneId.of("+8"))
 
   def nowDate() = LocalDate.now(ZoneId.of("+8"))
+
+  /**
+   *
+   * @param salt salt 
+   * @param digestPassword digest password
+   * @param password password
+   * @return
+   */
+  def matchPassword(salt: Array[Byte], digestPassword: Array[Byte], password: String): Boolean = {
+    java.util.Arrays.equals(DigestUtils.sha256(salt ++ password.getBytes("UTF-8")), digestPassword)
+  }
+
+  /**
+   *
+   * @param password old password
+   * @return (salt, digest password
+   */
+  def generatePassword(password: String): (Array[Byte], Array[Byte]) = {
+    val salt = Array.ofDim[Byte](12)
+    random.nextBytes(salt)
+    (salt, DigestUtils.sha256(salt ++ password.getBytes("UTF-8")))
+  }
 
   def randomString(size: Int): String = {
     assert(size > 0, s"size: $size must be > 0")

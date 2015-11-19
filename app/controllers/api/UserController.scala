@@ -29,4 +29,24 @@ class UserController @Inject()(userService: UserService) extends Controller with
         NotFound
     }
   }
+
+  def signin = Action.async(parse.json) { request =>
+    val account = request.body.\("account").as[String]
+    val password = request.body.\("password").as[String]
+    userService.signin(account, password).map {
+      case Some(user) =>
+        Ok(Json.toJson(user))
+      case None =>
+        NotFound
+    }
+  }
+
+  def signup = Action.async(parse.json) { request =>
+    val account = request.body.\("account").as[String]
+    val password = request.body.\("password").as[String]
+    userService.signup(account, password).map { id =>
+      Ok(Json.obj("id" -> id))
+    }
+  }
+
 }

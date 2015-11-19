@@ -10,6 +10,7 @@ object UserStatus extends Enumeration {
   type UserStatus = Value
   val INACTIVE = Value
   val ACTIVE = Value
+  val CERTIFIED = Value
 
   implicit val __format = new Format[UserStatus.UserStatus] {
     override def writes(o: UserStatus): JsValue = JsString(o.toString)
